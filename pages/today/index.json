@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "今日抄写",
+  "usingComponents": {
+    "lesson-card": "/components/lesson-card/index",
+    "copy-progress": "/components/copy-progress/index"
+  }
+}

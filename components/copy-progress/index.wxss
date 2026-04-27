@@ -1,0 +1,46 @@
+@import "../../app.wxss";
+
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-text {
+  color: #5c4c3e;
+}
+
+.progress-track {
+  height: 16rpx;
+  border-radius: 999rpx;
+  background: #f0e5d8;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 999rpx;
+  background: #8b5e3c;
+}
+
+.status-tag {
+  font-size: 24rpx;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+}
+
+.status-doing {
+  background: #efe4d5;
+  color: #6f543c;
+}
+
+.status-done {
+  background: #dcefdc;
+  color: #406040;
+}

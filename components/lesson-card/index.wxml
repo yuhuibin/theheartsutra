@@ -1,0 +1,18 @@
+<view class="card lesson-card" wx:if="{{lesson}}">
+  <view class="section-title">今日学习</view>
+  <view class="lesson-title">{{lesson.title}}</view>
+  <view class="lesson-focus">{{lesson.focusText}}</view>
+  <view class="lesson-summary">{{lesson.summary}}</view>
+
+  <view class="detail-list" wx:if="{{lesson.details && lesson.details.length}}">
+    <view class="detail-item" wx:for="{{lesson.details}}" wx:key="index">
+      <text class="detail-dot">•</text>
+      <text class="detail-text">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="practice-box">
+    <view class="practice-label">今日练习</view>
+    <view class="practice-text">{{lesson.practicePrompt}}</view>
+  </view>
+</view>

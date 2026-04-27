@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/today/index",
+    "pages/history/index",
+    "pages/record/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "抄写心经",
+    "navigationBarBackgroundColor": "#f7f3eb",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f3eb",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "tabBar": {
+    "color": "#7d6b57",
+    "selectedColor": "#8b5e3c",
+    "backgroundColor": "#fffdf9",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/today/index",
+        "text": "今日"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "回看"
+      }
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+@import "../../app.wxss";
+
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.lesson-title {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.lesson-focus {
+  font-size: 28rpx;
+  color: #8b5e3c;
+}
+
+.lesson-summary {
+  color: #5c4c3e;
+}
+
+.detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.detail-dot {
+  color: #8b5e3c;
+  line-height: 1.6;
+}
+
+.detail-text {
+  flex: 1;
+}
+
+.practice-box {
+  background: #f6efe5;
+  border-radius: 18rpx;
+  padding: 20rpx;
+}
+
+.practice-label {
+  font-size: 24rpx;
+  color: #8f7962;
+  margin-bottom: 8rpx;
+}
+
+.practice-text {
+  color: #5c4c3e;
+}

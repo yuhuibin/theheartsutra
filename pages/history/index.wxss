@@ -1,0 +1,131 @@
+@import "../../app.wxss";
+
+.page-header {
+  margin-bottom: 24rpx;
+}
+
+.calendar-card {
+  padding: 28rpx 24rpx 24rpx;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.calendar-nav {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #efe4d5;
+  color: #6f543c;
+  font-size: 40rpx;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.calendar-nav-disabled {
+  opacity: 0.4;
+}
+
+.calendar-month-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.calendar-month {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #3f3429;
+}
+
+.calendar-summary {
+  font-size: 24rpx;
+  color: #4c7f4f;
+  background: #e7f5e8;
+  border-radius: 999rpx;
+  padding: 8rpx 18rpx;
+}
+
+.calendar-weekdays,
+.calendar-week {
+  display: flex;
+}
+
+.calendar-weekdays {
+  margin-bottom: 12rpx;
+}
+
+.calendar-week {
+  margin-bottom: 16rpx;
+}
+
+.calendar-week:last-child {
+  margin-bottom: 0;
+}
+
+.calendar-weekday,
+.calendar-day {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.calendar-weekday {
+  font-size: 24rpx;
+  color: #8f7962;
+}
+
+.calendar-circle {
+  width: 74rpx;
+  height: 74rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid #cdbca6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.calendar-day-number {
+  font-size: 28rpx;
+  color: #6f543c;
+}
+
+.calendar-circle.is-default {
+  background: transparent;
+}
+
+.calendar-circle.is-outside-month {
+  border-color: #eadfcf;
+}
+
+.calendar-circle.is-outside-month .calendar-day-number {
+  color: #c7b9a6;
+}
+
+.calendar-circle.is-completed {
+  background: #63b267;
+  border-color: #63b267;
+}
+
+.calendar-circle.is-completed .calendar-day-number {
+  color: #ffffff;
+}
+
+.calendar-circle.is-disabled {
+  opacity: 0.92;
+}
+
+.empty-text {
+  margin-top: 24rpx;
+}

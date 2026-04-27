@@ -1,0 +1,43 @@
+<view class="container">
+  <view class="page-header">
+    <view>
+      <view class="section-title">抄写回看</view>
+      <view class="section-subtitle">按周查看本月打卡，绿色实心圆可点开详情。</view>
+    </view>
+  </view>
+
+  <view class="card calendar-card">
+    <view class="calendar-header">
+      <view class="calendar-nav {{canPrevMonth ? '' : 'calendar-nav-disabled'}}" bindtap="goToPrevMonth">‹</view>
+      <view class="calendar-month-group">
+        <view class="calendar-month">{{monthLabel}}</view>
+        <view class="calendar-summary">已完成 {{completedCount}} 天</view>
+      </view>
+      <view class="calendar-nav {{canNextMonth ? '' : 'calendar-nav-disabled'}}" bindtap="goToNextMonth">›</view>
+    </view>
+
+    <view class="calendar-weekdays">
+      <view class="calendar-weekday" wx:for="{{weekdays}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="calendar-grid">
+      <view class="calendar-week" wx:for="{{calendarWeeks}}" wx:key="index" wx:for-item="week">
+        <view
+          class="calendar-day"
+          wx:for="{{week}}"
+          wx:key="date"
+          wx:for-item="day"
+          data-date="{{day.date}}"
+          data-clickable="{{day.isClickable}}"
+          bindtap="goToRecord"
+        >
+          <view class="calendar-circle {{day.isCompleted ? 'is-completed' : 'is-default'}} {{day.isCurrentMonth ? '' : 'is-outside-month'}} {{day.isClickable ? '' : 'is-disabled'}}">
+            <text class="calendar-day-number">{{day.dayNumber}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!records.length}}" class="empty-text">还没有抄写记录，先去完成今天的抄写吧。</view>
+</view>

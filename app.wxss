@@ -1,0 +1,58 @@
+page {
+  background: #f7f3eb;
+  color: #3f3429;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.container {
+  padding: 32rpx 24rpx 40rpx;
+}
+
+.card {
+  background: #fffdf9;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 10rpx 30rpx rgba(116, 87, 56, 0.08);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.section-subtitle {
+  font-size: 24rpx;
+  color: #8f7962;
+}
+
+.primary-button {
+  background: #8b5e3c;
+  color: #ffffff;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  padding: 0 32rpx;
+}
+
+.secondary-button {
+  background: #efe4d5;
+  color: #6f543c;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  padding: 0 32rpx;
+}
+
+button::after {
+  border: none;
+}
+
+.muted {
+  color: #8f7962;
+}
+
+.empty-text {
+  text-align: center;
+  color: #8f7962;
+  padding: 80rpx 0;
+}

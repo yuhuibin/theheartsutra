@@ -1,0 +1,84 @@
+<view class="container" wx:if="{{record}}">
+  <view class="page-header">
+    <view>
+      <view class="section-title">{{sutraTitle}}</view>
+      <view class="section-subtitle">{{currentDate}}</view>
+    </view>
+    <button class="secondary-button small-button" bindtap="goToHistory">查看回看</button>
+  </view>
+
+  <lesson-card lesson="{{record.lessonSnapshot}}"></lesson-card>
+
+  <copy-progress
+    completed="{{record.completedLineCount}}"
+    total="{{record.totalLineCount}}"
+    status="{{record.status}}"
+  ></copy-progress>
+
+  <view class="card copy-card">
+    <view class="copy-header">
+      <view>
+        <view class="section-title">今日抄写</view>
+        <view class="copy-tip">灰字是参考原文，写下后这一行会显示为黑色。</view>
+      </view>
+      <view class="muted" wx:if="{{savingLineId}}">正在记录...</view>
+    </view>
+
+    <view class="copy-board">
+      <view id="row-{{item.lineId}}" class="board-row {{item.copiedText ? 'board-row-filled' : ''}} {{animatedLineId === item.lineId ? 'board-row-animated' : ''}} {{index === 0 ? 'board-row-title' : ''}}" wx:for="{{lineInputs}}" wx:key="lineId">
+        <view class="board-content" style="min-height: {{copyLineHeight}}rpx;">
+          <view class="guide-text {{item.isChecked ? 'guide-text-checked' : ''}} {{index === 0 ? 'guide-text-title' : ''}}" style="height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx; line-height: {{copyLineHeight}}rpx;">
+            <text
+              wx:for="{{item.guideSegments}}"
+              wx:key="index"
+              class="{{segment.className}}"
+              wx:for-item="segment"
+            >{{segment.text}}</text>
+          </view>
+          <input
+            class="board-input {{index === 0 ? 'board-input-title' : ''}}"
+            type="text"
+            maxlength="200"
+            confirm-type="next"
+            cursor-spacing="20"
+            placeholder=""
+            value="{{item.copiedText}}"
+            style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;"
+            data-line-id="{{item.lineId}}"
+            data-index="{{index}}"
+            focus="{{focusedLineId === item.lineId}}"
+            bindinput="handleInput"
+            bindblur="handleBlur"
+            bindconfirm="handleConfirm"
+            disabled="{{isCompleted}}"
+          />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card font-size-panel">
+    <view class="font-size-setting">
+      <text class="font-size-label">文字大小</text>
+      <text class="font-size-value">{{copyFontSize}}rpx</text>
+    </view>
+    <slider
+      class="font-size-slider"
+      min="24"
+      max="42"
+      step="1"
+      value="{{copyFontSize}}"
+      activeColor="#8b5e3c"
+      backgroundColor="#e8dccd"
+      block-color="#8b5e3c"
+      block-size="20"
+      bindchanging="handleFontSizeChange"
+      bindchange="handleFontSizeChange"
+    />
+  </view>
+
+  <view class="action-row">
+    <button class="secondary-button action-button" bindtap="handleSave" disabled="{{isCompleted}}">保存进度</button>
+    <button class="primary-button action-button" bindtap="handleComplete">完成今日抄写</button>
+  </view>
+</view>

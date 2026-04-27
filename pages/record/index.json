@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "抄写详情",
+  "usingComponents": {
+    "lesson-card": "/components/lesson-card/index"
+  }
+}

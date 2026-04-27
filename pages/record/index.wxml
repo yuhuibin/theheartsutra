@@ -1,0 +1,34 @@
+<view class="container" wx:if="{{record}}">
+  <view class="card detail-header">
+    <view class="history-row">
+      <view class="section-title">{{record.date}}</view>
+      <view class="history-status {{record.status === 'completed' ? 'done' : 'doing'}}">
+        {{record.status === 'completed' ? '已完成' : '进行中'}}
+      </view>
+    </view>
+    <view class="detail-title">{{record.lessonSnapshot.title}}</view>
+    <view class="detail-focus">{{record.lessonSnapshot.focusText}}</view>
+  </view>
+
+  <lesson-card lesson="{{record.lessonSnapshot}}"></lesson-card>
+
+  <view class="card detail-card">
+    <view class="section-title">抄写内容</view>
+    <view wx:if="{{mergedLines.length}}" class="merged-list">
+      <view class="merged-line" wx:for="{{mergedLines}}" wx:key="index">{{item}}</view>
+    </view>
+    <view wx:else class="muted">这一天还没有抄写内容。</view>
+  </view>
+
+  <view class="card detail-card">
+    <view class="section-title">记录信息</view>
+    <view class="meta-item">进度：{{record.completedLineCount}} / {{record.totalLineCount}} 行</view>
+    <view class="meta-item">创建时间：{{record.createdAt || '-'}} </view>
+    <view class="meta-item">更新时间：{{record.updatedAt || '-'}} </view>
+    <view class="meta-item">完成时间：{{record.completedAt || '未完成'}} </view>
+  </view>
+</view>
+
+<view wx:else class="container">
+  <view class="empty-text">没有找到这一天的抄写记录。</view>
+</view>

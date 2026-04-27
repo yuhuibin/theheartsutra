@@ -1,0 +1,36 @@
+@import "../../app.wxss";
+@import "../history/index.wxss";
+
+.detail-header,
+.detail-card {
+  margin-bottom: 24rpx;
+}
+
+.detail-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  margin-top: 12rpx;
+}
+
+.detail-focus {
+  margin-top: 10rpx;
+  color: #8b5e3c;
+}
+
+.merged-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.merged-line {
+  padding: 18rpx 20rpx;
+  background: #f9f4ee;
+  border-radius: 16rpx;
+}
+
+.meta-item {
+  margin-top: 12rpx;
+  color: #5c4c3e;
+}

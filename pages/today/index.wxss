@@ -1,0 +1,160 @@
+@import "../../app.wxss";
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.small-button {
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 24rpx;
+}
+
+.copy-card {
+  margin-top: 24rpx;
+}
+
+.copy-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.copy-tip {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8f7962;
+}
+
+.font-size-panel {
+  margin-top: 20rpx;
+}
+
+.font-size-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.font-size-label {
+  font-size: 26rpx;
+  color: #6f543c;
+}
+
+.font-size-value {
+  font-size: 24rpx;
+  color: #8f7962;
+}
+
+.font-size-slider {
+  margin: 0 0 16rpx;
+}
+
+.copy-board {
+  background: linear-gradient(180deg, #fbf7f0 0%, #f8f1e7 100%);
+  border-radius: 24rpx;
+  padding: 8rpx 0;
+  overflow: hidden;
+}
+
+.board-row {
+  padding: 0 24rpx;
+}
+
+.board-content {
+  position: relative;
+  min-height: 96rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #eadbc8;
+  transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+}
+
+.board-row-animated .board-content {
+  border-bottom-color: #d7b795;
+  background: rgba(255, 255, 255, 0.36);
+  transform: translateY(-4rpx);
+}
+
+.board-row:last-child .board-content {
+  border-bottom: none;
+}
+
+.guide-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 0;
+  box-sizing: border-box;
+  font-size: 30rpx;
+  line-height: 88rpx;
+  color: #b8ab9b;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.guide-text-checked {
+  z-index: 2;
+}
+
+.guide-text-title {
+  font-weight: 600;
+}
+
+.guide-text-guide {
+  color: #b8ab9b;
+}
+
+.guide-text-error {
+  color: #d84b4b;
+  font-weight: 600;
+}
+
+.guide-text-hidden {
+  color: transparent;
+}
+
+.board-input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 88rpx;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background: transparent;
+  color: #2f251d;
+  font-size: 30rpx;
+  line-height: 88rpx;
+  transition: transform 0.22s ease;
+}
+
+.board-row-animated .board-input {
+  transform: translateX(6rpx);
+}
+
+.board-input-title {
+  font-weight: 600;
+}
+
+.action-row {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 32rpx;
+  padding-bottom: 24rpx;
+}
+
+.action-button {
+  flex: 1;
+  height: 92rpx;
+  line-height: 92rpx;
+  font-size: 30rpx;
+}
