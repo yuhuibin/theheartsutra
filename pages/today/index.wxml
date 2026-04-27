@@ -27,7 +27,7 @@
     <view class="copy-board">
       <view id="row-{{item.lineId}}" class="board-row {{item.copiedText ? 'board-row-filled' : ''}} {{animatedLineId === item.lineId ? 'board-row-animated' : ''}} {{index === 0 ? 'board-row-title' : ''}}" wx:for="{{lineInputs}}" wx:key="lineId">
         <view class="board-content" style="min-height: {{copyLineHeight}}rpx;">
-          <view class="guide-text {{item.isChecked ? 'guide-text-checked' : ''}} {{index === 0 ? 'guide-text-title' : ''}}" style="height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx; line-height: {{copyLineHeight}}rpx;">
+          <view class="guide-text {{item.isChecked && focusedLineId !== item.lineId ? 'guide-text-checked' : ''}} {{index === 0 ? 'guide-text-title' : ''}}" style="height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx; line-height: {{copyLineHeight}}rpx;">
             <text
               wx:for="{{item.guideSegments}}"
               wx:key="index"
@@ -36,10 +36,11 @@
             >{{segment.text}}</text>
           </view>
           <input
-            class="board-input {{index === 0 ? 'board-input-title' : ''}}"
+            class="board-input {{index === 0 ? 'board-input-title' : ''}} {{item.isChecked && focusedLineId !== item.lineId ? 'board-input-checked' : ''}}"
             type="text"
             maxlength="200"
             confirm-type="next"
+            confirm-hold="{{true}}"
             cursor-spacing="20"
             placeholder=""
             value="{{item.copiedText}}"
@@ -47,6 +48,7 @@
             data-line-id="{{item.lineId}}"
             data-index="{{index}}"
             focus="{{focusedLineId === item.lineId}}"
+            bindfocus="handleFocus"
             bindinput="handleInput"
             bindblur="handleBlur"
             bindconfirm="handleConfirm"

@@ -4,16 +4,47 @@ const {
   getOrCreateDailyRecord,
   updateDailyCopyEntry,
   completeDailyRecord,
-  getSutraTitle
+  getSutraTitle,
+  isIgnorableCopyChar,
+  getComparableChars,
+  isCopiedTextMatched
 } = require('../../utils/study');
 
 function buildGuideSegments(sourceText, copiedText, isChecked) {
   const sourceChars = (sourceText || '').split('');
-  const copiedChars = (copiedText || '').split('');
-  const hasInput = Boolean((copiedText || '').length);
+  const comparableCopiedChars = getComparableChars(copiedText);
+  const hasComparableInput = comparableCopiedChars.length > 0;
+  const lineMatched = isCopiedTextMatched(sourceText, copiedText);
+  let comparableIndex = 0;
 
-  return sourceChars.map((char, index) => {
-    if (!hasInput) {
+  return sourceChars.map((char) => {
+    if (isIgnorableCopyChar(char)) {
+      if (!hasComparableInput) {
+        return {
+          text: char,
+          className: 'guide-text-guide'
+        };
+      }
+
+      if (isChecked) {
+        return {
+          text: char,
+          className: lineMatched || comparableIndex < comparableCopiedChars.length
+            ? 'guide-text-filled'
+            : 'guide-text-guide'
+        };
+      }
+
+      return {
+        text: comparableIndex < comparableCopiedChars.length ? '' : char,
+        className: 'guide-text-guide'
+      };
+    }
+
+    const currentIndex = comparableIndex;
+    comparableIndex += 1;
+
+    if (!hasComparableInput) {
       return {
         text: char,
         className: 'guide-text-guide'
@@ -23,17 +54,19 @@ function buildGuideSegments(sourceText, copiedText, isChecked) {
     if (!isChecked) {
       return {
         text: char,
-        className: index < copiedChars.length ? 'guide-text-hidden' : 'guide-text-guide'
+        className: currentIndex < comparableCopiedChars.length ? 'guide-text-hidden' : 'guide-text-guide'
       };
     }
 
+    const copiedChar = comparableCopiedChars[currentIndex];
+
     return {
       text: char,
-      className: index >= copiedChars.length
+      className: copiedChar === undefined
         ? 'guide-text-guide'
-        : copiedChars[index] !== char
+        : copiedChar !== char
           ? 'guide-text-error'
-          : 'guide-text-hidden'
+          : 'guide-text-filled'
     };
   });
 }
@@ -193,7 +226,8 @@ Page({
 
     const nextGuideSegments = buildGuideSegments(currentItem.sourceText, value, false);
     const hasSameDisplay = !currentItem.isChecked && currentItem.guideSegments.every((item, segmentIndex) => {
-      return item.className === nextGuideSegments[segmentIndex].className;
+      const nextSegment = nextGuideSegments[segmentIndex];
+      return item.className === nextSegment.className && item.text === nextSegment.text;
     });
 
     if (hasSameDisplay) {
@@ -207,10 +241,17 @@ Page({
     });
   },
 
+  handleFocus(event) {
+    const { lineId } = event.currentTarget.dataset;
+    this.setData({
+      focusedLineId: lineId
+    });
+  },
+
   handleBlur(event) {
     const { lineId } = event.currentTarget.dataset;
     const inputValue = event.detail.value;
-    const { currentDate, lineInputs, isCompleted } = this.data;
+    const { currentDate, lineInputs, isCompleted, focusedLineId } = this.data;
 
     if (isCompleted) {
       return;
@@ -226,7 +267,8 @@ Page({
     this.setData({
       record,
       lineInputs: nextInputs,
-      savingLineId: ''
+      savingLineId: '',
+      focusedLineId: focusedLineId === lineId ? '' : focusedLineId
     });
   },
 

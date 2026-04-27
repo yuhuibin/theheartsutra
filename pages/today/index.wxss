@@ -113,6 +113,10 @@
   color: #b8ab9b;
 }
 
+.guide-text-filled {
+  color: #2f251d;
+}
+
 .guide-text-error {
   color: #d84b4b;
   font-weight: 600;
@@ -143,6 +147,11 @@
 
 .board-input-title {
   font-weight: 600;
+}
+
+.board-input-checked {
+  color: transparent;
+  caret-color: transparent;
 }
 
 .action-row {

@@ -14,6 +14,28 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+const IGNORABLE_COPY_CHARS = new Set([
+  '，', '。', '；', '：', '、', '！', '？',
+  '（', '）', '《', '》', '“', '”', '‘', '’',
+  ',', '.', ';', ':', '!', '?', '(', ')', '[', ']', '{', '}', '<', '>', '"', "'",
+  ' ', '\n', '\r', '\t', '　'
+]);
+
+function isIgnorableCopyChar(char) {
+  return IGNORABLE_COPY_CHARS.has(char);
+}
+
+function getComparableChars(text) {
+  return (text || '').split('').filter((char) => !isIgnorableCopyChar(char));
+}
+
+function isCopiedTextMatched(sourceText, copiedText) {
+  const sourceChars = getComparableChars(sourceText);
+  const copiedChars = getComparableChars(copiedText);
+
+  return sourceChars.length === copiedChars.length && sourceChars.every((char, index) => char === copiedChars[index]);
+}
+
 function getLessons() {
   return lessonData.lessons || [];
 }
@@ -114,7 +136,7 @@ function reconcileCopyEntries(copyEntries) {
 }
 
 function getCompletedLineCount(copyEntries) {
-  return copyEntries.filter((item) => item.copiedText && item.copiedText.trim()).length;
+  return copyEntries.filter((item) => isCopiedTextMatched(item.sourceText, item.copiedText)).length;
 }
 
 function mergeCopiedText(copyEntries) {
@@ -253,5 +275,8 @@ module.exports = {
   getRecordByDate,
   getSutraLines,
   getLessons,
+  isIgnorableCopyChar,
+  getComparableChars,
+  isCopiedTextMatched,
   getSutraTitle: () => sutraData.title
 };
