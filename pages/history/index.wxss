@@ -122,6 +122,15 @@
   color: #ffffff;
 }
 
+.calendar-circle.is-in-progress {
+  background: #f2e4d2;
+  border-color: #c79d6d;
+}
+
+.calendar-circle.is-in-progress .calendar-day-number {
+  color: #7a5735;
+}
+
 .calendar-circle.is-disabled {
   opacity: 0.92;
 }

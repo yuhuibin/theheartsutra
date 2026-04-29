@@ -254,6 +254,27 @@ function completeDailyRecord(dateString) {
   };
 }
 
+function resetDailyRecord(dateString) {
+  const record = clone(getOrCreateDailyRecord(dateString));
+  const now = formatDateTime(new Date());
+  const nextRecord = {
+    ...record,
+    copyEntries: reconcileCopyEntries(record.copyEntries).map((item) => ({
+      ...item,
+      copiedText: '',
+      updatedAt: ''
+    })),
+    mergedText: '',
+    completedLineCount: 0,
+    totalLineCount: getSutraLines().length,
+    status: 'in_progress',
+    updatedAt: now,
+    completedAt: ''
+  };
+
+  return persistRecord(nextRecord);
+}
+
 function getHistoryRecords() {
   const records = Object.values(getDailyRecords()).map((record) => normalizeRecord(record));
   return records.sort((left, right) => right.date.localeCompare(left.date));
@@ -271,6 +292,7 @@ module.exports = {
   getOrCreateDailyRecord,
   updateDailyCopyEntry,
   completeDailyRecord,
+  resetDailyRecord,
   getHistoryRecords,
   getRecordByDate,
   getSutraLines,

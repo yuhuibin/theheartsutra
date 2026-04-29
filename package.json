@@ -1,0 +1,9 @@
+{
+  "name": "theheartsutra",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "tdesign-miniprogram": "1.14.0",
+    "tslib": "^2.8.1"
+  }
+}

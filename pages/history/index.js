@@ -18,6 +18,18 @@ function buildRecordMap(records) {
   }, {});
 }
 
+function hasRecordContent(record) {
+  if (!record) {
+    return false;
+  }
+
+  if (record.mergedText && record.mergedText.trim()) {
+    return true;
+  }
+
+  return (record.copyEntries || []).some((item) => (item.copiedText || '').trim());
+}
+
 function getLatestMonth(records) {
   if (!records.length) {
     return getMonthStart(new Date());
@@ -78,12 +90,14 @@ Page({
       return week.map((day) => {
         const record = recordMap[day.date];
         const isCompleted = Boolean(record && record.status === 'completed');
+        const hasContent = hasRecordContent(record);
 
         return {
           ...day,
           status: record ? record.status : '',
           isCompleted,
-          isClickable: isCompleted
+          hasContent,
+          isClickable: hasContent
         };
       });
     });

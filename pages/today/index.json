@@ -2,6 +2,8 @@
   "navigationBarTitleText": "今日抄写",
   "usingComponents": {
     "lesson-card": "/components/lesson-card/index",
-    "copy-progress": "/components/copy-progress/index"
+    "copy-progress": "/components/copy-progress/index",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-slider": "tdesign-miniprogram/slider/slider"
   }
 }
