@@ -126,24 +126,30 @@
   color: transparent;
 }
 
-.board-input-mock {
+.board-textarea {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 88rpx;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   background: transparent;
   color: #2f251d;
-  font-size: 30rpx;
-  line-height: 88rpx;
-  white-space: nowrap;
-  overflow: hidden;
+  border: none;
+  outline: none;
 }
 
-.board-input-active {
-  border-bottom: 2rpx solid #8b5e3c;
+.board-input-mock {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background: transparent;
+  color: #2f251d;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .board-input-title {
@@ -152,16 +158,6 @@
 
 .board-input-checked {
   color: transparent;
-}
-
-.board-textarea {
-  position: fixed;
-  left: -9999rpx;
-  top: 0;
-  width: 1rpx;
-  height: 1rpx;
-  opacity: 0;
-  z-index: -1;
 }
 
 .action-row {

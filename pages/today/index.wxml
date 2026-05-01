@@ -35,31 +35,32 @@
               wx:for-item="segment"
             >{{segment.text}}</text>
           </view>
-          <view class="board-input-mock {{index === 0 ? 'board-input-title' : ''}} {{item.isChecked && activeLineIndex !== index ? 'board-input-checked' : ''}} {{activeLineIndex === index ? 'board-input-active' : ''}}" style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;">
-            <text wx:if="{{!item.isChecked || activeLineIndex === index}}">{{item.copiedText}}</text>
+          <textarea
+            wx:if="{{activeLineIndex === index}}"
+            class="board-textarea {{index === 0 ? 'board-input-title' : ''}}"
+            maxlength="200"
+            confirm-type="next"
+            confirm-hold="{{true}}"
+            hold-keyboard="{{true}}"
+            cursor-spacing="20"
+            auto-height="{{false}}"
+            fixed="{{true}}"
+            placeholder=""
+            value="{{activeLineValue}}"
+            focus="{{true}}"
+            cursor="{{activeLineCursor}}"
+            style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;"
+            bindinput="handleTextareaInput"
+            bindblur="handleTextareaBlur"
+            bindconfirm="handleTextareaConfirm"
+            disabled="{{isCompleted}}"
+          />
+          <view wx:else class="board-input-mock {{index === 0 ? 'board-input-title' : ''}} {{item.isChecked ? 'board-input-checked' : ''}}" style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;">
+            {{item.copiedText}}
           </view>
         </view>
       </view>
     </view>
-
-    <textarea
-      class="board-textarea"
-      maxlength="200"
-      confirm-type="next"
-      confirm-hold="{{true}}"
-      hold-keyboard="{{true}}"
-      cursor-spacing="20"
-      auto-height="{{false}}"
-      fixed="{{true}}"
-      placeholder=""
-      value="{{activeLineValue}}"
-      focus="{{isTextareaFocused}}"
-      bindfocus="handleTextareaFocus"
-      bindblur="handleTextareaBlur"
-      bindinput="handleTextareaInput"
-      bindconfirm="handleTextareaConfirm"
-      disabled="{{isCompleted}}"
-    />
   </view>
 
   <view class="card font-size-panel">
