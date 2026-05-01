@@ -113,11 +113,13 @@ Page({
     record: null,
     lineInputs: [],
     savingLineId: '',
-    focusedLineId: '',
     animatedLineId: '',
     isCompleted: false,
     copyFontSize: DEFAULT_COPY_FONT_SIZE,
-    copyLineHeight: DEFAULT_COPY_FONT_SIZE + 28
+    copyLineHeight: DEFAULT_COPY_FONT_SIZE + 28,
+    activeLineIndex: -1,
+    activeLineValue: '',
+    isTextareaFocused: false
   },
 
   onLoad() {
@@ -203,112 +205,214 @@ Page({
       sutraTitle: getSutraTitle(),
       record,
       lineInputs,
-      focusedLineId: '',
+      activeLineIndex: -1,
+      activeLineValue: '',
+      isTextareaFocused: false,
       isCompleted: record.status === 'completed'
     });
   },
 
-  handleInput(event) {
-    const { lineId, index } = event.currentTarget.dataset;
-    const { value } = event.detail;
-    const { isCompleted, lineInputs } = this.data;
+  handleRowTap(event) {
+    const { index } = event.currentTarget.dataset;
+    const { lineInputs, isCompleted, activeLineIndex } = this.data;
 
     if (isCompleted) {
       return;
     }
 
-    this.lineDrafts[lineId] = value;
-
-    const currentItem = lineInputs[Number(index)];
-    if (!currentItem) {
+    const item = lineInputs[Number(index)];
+    if (!item) {
       return;
     }
 
-    const nextGuideSegments = buildGuideSegments(currentItem.sourceText, value, false);
-    const hasSameDisplay = !currentItem.isChecked && currentItem.guideSegments.every((item, segmentIndex) => {
-      const nextSegment = nextGuideSegments[segmentIndex];
-      return item.className === nextSegment.className && item.text === nextSegment.text;
+    if (activeLineIndex >= 0 && activeLineIndex !== Number(index)) {
+      this.saveCurrentLine();
+    }
+
+    const lineDraft = this.lineDrafts[item.lineId];
+    const currentValue = lineDraft !== undefined ? lineDraft : (item.copiedText || '');
+
+    const updates = {
+      activeLineIndex: Number(index),
+      activeLineValue: currentValue,
+      isTextareaFocused: true
+    };
+
+    if (item.isChecked) {
+      this.lineDrafts[item.lineId] = currentValue;
+      const nextGuideSegments = buildGuideSegments(item.sourceText, currentValue, false);
+      updates[`lineInputs[${Number(index)}].isChecked`] = false;
+      updates[`lineInputs[${Number(index)}].guideSegments`] = nextGuideSegments;
+    }
+
+    this.setData(updates);
+    this.scrollToLine(item.lineId);
+  },
+
+  saveCurrentLine() {
+    const { activeLineIndex, lineInputs, currentDate, activeLineValue } = this.data;
+    if (activeLineIndex < 0 || activeLineIndex >= lineInputs.length) {
+      return;
+    }
+
+    const item = lineInputs[activeLineIndex];
+    if (!item) {
+      return;
+    }
+
+    const value = activeLineValue;
+    this.lineDrafts[item.lineId] = value;
+
+    const checkedMap = getCheckedMap(lineInputs);
+    const record = updateDailyCopyEntry(currentDate, item.lineId, value);
+    const nextInputs = decorateLineInputs(record.copyEntries || [], checkedMap);
+
+    this.syncDrafts(nextInputs);
+
+    this.setData({
+      record,
+      lineInputs: nextInputs,
+      savingLineId: ''
+    });
+  },
+
+  handleTextareaFocus() {
+    const { activeLineIndex, lineInputs } = this.data;
+
+    if (activeLineIndex < 0) {
+      const firstUnchecked = lineInputs.findIndex((item) => !item.isChecked);
+      if (firstUnchecked >= 0) {
+        const item = lineInputs[firstUnchecked];
+        const lineDraft = this.lineDrafts[item.lineId];
+        const currentValue = lineDraft !== undefined ? lineDraft : (item.copiedText || '');
+
+        this.setData({
+          activeLineIndex: firstUnchecked,
+          activeLineValue: currentValue
+        });
+      }
+    }
+  },
+
+  handleTextareaBlur() {
+    this.saveCurrentLine();
+
+    this.setData({
+      activeLineIndex: -1,
+      activeLineValue: '',
+      isTextareaFocused: false
+    });
+  },
+
+  handleTextareaInput(event) {
+    const { activeLineIndex, lineInputs, isCompleted } = this.data;
+    if (isCompleted || activeLineIndex < 0) {
+      return;
+    }
+
+    const value = event.detail.value;
+    const item = lineInputs[activeLineIndex];
+    if (!item) {
+      return;
+    }
+
+    this.lineDrafts[item.lineId] = value;
+
+    const nextGuideSegments = buildGuideSegments(item.sourceText, value, false);
+    const hasSameDisplay = !item.isChecked && item.guideSegments.every((seg, segIndex) => {
+      const nextSeg = nextGuideSegments[segIndex];
+      return seg.className === nextSeg.className && seg.text === nextSeg.text;
     });
 
     if (hasSameDisplay) {
+      this.setData({ activeLineValue: value });
       return;
     }
 
     this.setData({
-      [`lineInputs[${index}].copiedText`]: value,
-      [`lineInputs[${index}].isChecked`]: false,
-      [`lineInputs[${index}].guideSegments`]: nextGuideSegments
+      activeLineValue: value,
+      [`lineInputs[${activeLineIndex}].copiedText`]: value,
+      [`lineInputs[${activeLineIndex}].isChecked`]: false,
+      [`lineInputs[${activeLineIndex}].guideSegments`]: nextGuideSegments
     });
   },
 
-  handleFocus(event) {
-    const { lineId } = event.currentTarget.dataset;
-    this.setData({
-      focusedLineId: lineId
-    });
-  },
-
-  handleBlur(event) {
-    const { lineId } = event.currentTarget.dataset;
-    const inputValue = event.detail.value;
-    const { currentDate, lineInputs, isCompleted, focusedLineId } = this.data;
-
-    if (isCompleted) {
+  handleTextareaConfirm() {
+    const { activeLineIndex, lineInputs, currentDate, activeLineValue } = this.data;
+    if (activeLineIndex < 0) {
       return;
     }
 
-    const value = this.lineDrafts[lineId] !== undefined ? this.lineDrafts[lineId] : inputValue;
+    const item = lineInputs[activeLineIndex];
+    if (!item) {
+      return;
+    }
+
+    const value = activeLineValue;
+    this.lineDrafts[item.lineId] = value;
+
     const checkedMap = getCheckedMap(lineInputs);
-    const record = updateDailyCopyEntry(currentDate, lineId, value);
+    checkedMap[item.lineId] = true;
+
+    const record = updateDailyCopyEntry(currentDate, item.lineId, value);
     const nextInputs = decorateLineInputs(record.copyEntries || [], checkedMap);
+
+    const nextIndex = activeLineIndex + 1;
+    const nextItem = nextInputs[nextIndex];
 
     this.syncDrafts(nextInputs);
 
-    this.setData({
-      record,
-      lineInputs: nextInputs,
-      savingLineId: '',
-      focusedLineId: focusedLineId === lineId ? '' : focusedLineId
-    });
-  },
+    if (nextItem && !nextItem.isChecked) {
+      const nextDraft = this.lineDrafts[nextItem.lineId];
+      const nextValue = nextDraft !== undefined ? nextDraft : (nextItem.copiedText || '');
 
-  handleConfirm(event) {
-    const { lineId, index } = event.currentTarget.dataset;
-    const inputValue = event.detail.value;
-    const { currentDate, lineInputs, isCompleted } = this.data;
+      this.setData({
+        record,
+        lineInputs: nextInputs,
+        savingLineId: '',
+        activeLineIndex: nextIndex,
+        activeLineValue: nextValue,
+        isTextareaFocused: true,
+        animatedLineId: nextItem.lineId
+      });
 
-    if (isCompleted) {
-      return;
-    }
-
-    const value = this.lineDrafts[lineId] !== undefined ? this.lineDrafts[lineId] : inputValue;
-    const checkedMap = getCheckedMap(lineInputs);
-    checkedMap[lineId] = true;
-
-    const record = updateDailyCopyEntry(currentDate, lineId, value);
-    const nextInputs = decorateLineInputs(record.copyEntries || [], checkedMap);
-    const nextItem = nextInputs[Number(index) + 1];
-
-    this.syncDrafts(nextInputs);
-
-    this.setData({
-      record,
-      lineInputs: nextInputs,
-      savingLineId: '',
-      focusedLineId: nextItem ? nextItem.lineId : '',
-      animatedLineId: nextItem ? nextItem.lineId : ''
-    });
-
-    if (nextItem) {
       this.animateLine(nextItem.lineId);
-      setTimeout(() => {
-        this.scrollToLine(nextItem.lineId);
-      }, 30);
+      setTimeout(() => { this.scrollToLine(nextItem.lineId); }, 30);
+    } else {
+      this.setData({
+        record,
+        lineInputs: nextInputs,
+        savingLineId: '',
+        animatedLineId: ''
+      });
+
+      const furtherNext = nextInputs.findIndex((li, i) => i > activeLineIndex && !li.isChecked);
+      if (furtherNext >= 0) {
+        const furtherItem = nextInputs[furtherNext];
+        const furtherDraft = this.lineDrafts[furtherItem.lineId];
+        const furtherValue = furtherDraft !== undefined ? furtherDraft : (furtherItem.copiedText || '');
+
+        this.setData({
+          activeLineIndex: furtherNext,
+          activeLineValue: furtherValue,
+          isTextareaFocused: true,
+          animatedLineId: furtherItem.lineId
+        });
+
+        this.animateLine(furtherItem.lineId);
+        setTimeout(() => { this.scrollToLine(furtherItem.lineId); }, 30);
+      } else {
+        this.setData({
+          activeLineIndex: -1,
+          activeLineValue: '',
+          isTextareaFocused: false
+        });
+      }
     }
   },
 
   handleSave() {
-    const { currentDate, lineInputs, isCompleted } = this.data;
+    const { currentDate, lineInputs, isCompleted, activeLineIndex, activeLineValue } = this.data;
 
     if (isCompleted) {
       wx.showToast({
@@ -316,6 +420,10 @@ Page({
         icon: 'none'
       });
       return;
+    }
+
+    if (activeLineIndex >= 0) {
+      this.lineDrafts[lineInputs[activeLineIndex].lineId] = activeLineValue;
     }
 
     let record = null;
@@ -332,8 +440,7 @@ Page({
     this.setData({
       record,
       lineInputs: nextInputs,
-      savingLineId: '',
-      focusedLineId: ''
+      savingLineId: ''
     });
 
     wx.showToast({
@@ -343,7 +450,12 @@ Page({
   },
 
   handleComplete() {
-    const { currentDate } = this.data;
+    const { currentDate, activeLineIndex, activeLineValue, lineInputs } = this.data;
+
+    if (activeLineIndex >= 0) {
+      this.lineDrafts[lineInputs[activeLineIndex].lineId] = activeLineValue;
+    }
+
     const result = completeDailyRecord(currentDate);
 
     if (!result.ok) {
@@ -361,7 +473,9 @@ Page({
     this.setData({
       record: result.record,
       lineInputs: nextInputs,
-      focusedLineId: '',
+      activeLineIndex: -1,
+      activeLineValue: '',
+      isTextareaFocused: false,
       isCompleted: true
     });
 

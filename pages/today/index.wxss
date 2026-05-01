@@ -126,7 +126,7 @@
   color: transparent;
 }
 
-.board-input {
+.board-input-mock {
   position: relative;
   z-index: 1;
   width: 100%;
@@ -138,11 +138,12 @@
   color: #2f251d;
   font-size: 30rpx;
   line-height: 88rpx;
-  transition: transform 0.22s ease;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.board-row-animated .board-input {
-  transform: translateX(6rpx);
+.board-input-active {
+  border-bottom: 2rpx solid #8b5e3c;
 }
 
 .board-input-title {
@@ -151,7 +152,16 @@
 
 .board-input-checked {
   color: transparent;
-  caret-color: transparent;
+}
+
+.board-textarea {
+  position: fixed;
+  left: -9999rpx;
+  top: 0;
+  width: 1rpx;
+  height: 1rpx;
+  opacity: 0;
+  z-index: -1;
 }
 
 .action-row {

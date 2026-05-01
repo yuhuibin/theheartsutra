@@ -26,8 +26,8 @@
 
     <view class="copy-board">
       <view id="row-{{item.lineId}}" class="board-row {{item.copiedText ? 'board-row-filled' : ''}} {{animatedLineId === item.lineId ? 'board-row-animated' : ''}} {{index === 0 ? 'board-row-title' : ''}}" wx:for="{{lineInputs}}" wx:key="lineId">
-        <view class="board-content" style="min-height: {{copyLineHeight}}rpx;">
-          <view class="guide-text {{item.isChecked && focusedLineId !== item.lineId ? 'guide-text-checked' : ''}} {{index === 0 ? 'guide-text-title' : ''}}" style="height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx; line-height: {{copyLineHeight}}rpx;">
+        <view class="board-content" style="min-height: {{copyLineHeight}}rpx;" data-index="{{index}}" bindtap="handleRowTap">
+          <view class="guide-text {{item.isChecked && activeLineIndex !== index ? 'guide-text-checked' : ''}} {{index === 0 ? 'guide-text-title' : ''}}" style="height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx; line-height: {{copyLineHeight}}rpx;">
             <text
               wx:for="{{item.guideSegments}}"
               wx:key="index"
@@ -35,28 +35,31 @@
               wx:for-item="segment"
             >{{segment.text}}</text>
           </view>
-          <input
-            class="board-input {{index === 0 ? 'board-input-title' : ''}} {{item.isChecked && focusedLineId !== item.lineId ? 'board-input-checked' : ''}}"
-            type="text"
-            maxlength="200"
-            confirm-type="next"
-            confirm-hold="{{true}}"
-            cursor-spacing="20"
-            placeholder=""
-            value="{{item.copiedText}}"
-            style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;"
-            data-line-id="{{item.lineId}}"
-            data-index="{{index}}"
-            focus="{{focusedLineId === item.lineId}}"
-            bindfocus="handleFocus"
-            bindinput="handleInput"
-            bindblur="handleBlur"
-            bindconfirm="handleConfirm"
-            disabled="{{isCompleted}}"
-          />
+          <view class="board-input-mock {{index === 0 ? 'board-input-title' : ''}} {{item.isChecked && activeLineIndex !== index ? 'board-input-checked' : ''}} {{activeLineIndex === index ? 'board-input-active' : ''}}" style="height: {{copyLineHeight}}rpx; line-height: {{copyLineHeight}}rpx; font-size: {{copyFontSize}}rpx;">
+            <text wx:if="{{!item.isChecked || activeLineIndex === index}}">{{item.copiedText}}</text>
+          </view>
         </view>
       </view>
     </view>
+
+    <textarea
+      class="board-textarea"
+      maxlength="200"
+      confirm-type="next"
+      confirm-hold="{{true}}"
+      hold-keyboard="{{true}}"
+      cursor-spacing="20"
+      auto-height="{{false}}"
+      fixed="{{true}}"
+      placeholder=""
+      value="{{activeLineValue}}"
+      focus="{{isTextareaFocused}}"
+      bindfocus="handleTextareaFocus"
+      bindblur="handleTextareaBlur"
+      bindinput="handleTextareaInput"
+      bindconfirm="handleTextareaConfirm"
+      disabled="{{isCompleted}}"
+    />
   </view>
 
   <view class="card font-size-panel">
