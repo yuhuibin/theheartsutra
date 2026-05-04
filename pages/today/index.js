@@ -26,7 +26,7 @@ function buildGuideSegments(sourceText, copiedText, isChecked, isActive) {
         };
       }
 
-      if (isChecked) {
+      if (isChecked || isActive) {
         return {
           text: char,
           className: lineMatched || comparableIndex < comparableCopiedChars.length
@@ -52,18 +52,16 @@ function buildGuideSegments(sourceText, copiedText, isChecked, isActive) {
     }
 
     if (!isChecked) {
-      if (currentIndex < comparableCopiedChars.length) {
+      if (isActive && currentIndex < comparableCopiedChars.length) {
         const copiedChar = comparableCopiedChars[currentIndex];
         return {
           text: char,
-          className: isActive
-            ? (copiedChar === char ? 'guide-text-filled' : 'guide-text-error')
-            : 'guide-text-hidden'
+          className: copiedChar === char ? 'guide-text-filled' : 'guide-text-error'
         };
       }
       return {
         text: char,
-        className: 'guide-text-guide'
+        className: currentIndex < comparableCopiedChars.length ? 'guide-text-hidden' : 'guide-text-guide'
       };
     }
 
@@ -125,7 +123,12 @@ Page({
     copyLineHeight: DEFAULT_COPY_FONT_SIZE + 28,
     activeLineIndex: -1,
     activeLineValue: '',
-    activeLineCursor: 0
+    activeLineCursor: 0,
+    isTextareaFocused: false,
+    textareaTop: 0,
+    textareaLeft: 0,
+    textareaWidth: 0,
+    textareaHeight: 0
   },
 
   onLoad() {
@@ -146,6 +149,14 @@ Page({
     if (this.animationTimer) {
       clearTimeout(this.animationTimer);
     }
+  },
+
+  onPageScroll() {
+    const { activeLineIndex, lineInputs } = this.data;
+    if (activeLineIndex < 0 || !lineInputs[activeLineIndex]) {
+      return;
+    }
+    this.positionTextarea(lineInputs[activeLineIndex].lineId);
   },
 
   syncDrafts(lineInputs) {
@@ -199,6 +210,26 @@ Page({
     });
   },
 
+  positionTextarea(lineId, callback) {
+    const query = wx.createSelectorQuery();
+    query.select('.copy-board').boundingClientRect();
+    query.select(`#row-${lineId} .board-content`).boundingClientRect();
+    query.exec((result) => {
+      const parent = result && result[0];
+      const target = result && result[1];
+      if (!parent || !target) {
+        if (callback) { callback(); }
+        return;
+      }
+      this.setData({
+        textareaTop: target.top - parent.top,
+        textareaLeft: target.left - parent.left,
+        textareaWidth: target.width,
+        textareaHeight: target.height
+      }, callback);
+    });
+  },
+
   loadTodayRecord() {
     const currentDate = formatDate(new Date());
     const record = getOrCreateDailyRecord(currentDate);
@@ -214,12 +245,13 @@ Page({
       activeLineIndex: -1,
       activeLineValue: '',
       activeLineCursor: 0,
+      isTextareaFocused: false,
       isCompleted: record.status === 'completed'
     });
   },
 
   activateLine(index, skipSave) {
-    const { lineInputs, currentDate, activeLineIndex, activeLineValue } = this.data;
+    const { lineInputs, activeLineIndex, activeLineValue } = this.data;
 
     if (!skipSave && activeLineIndex >= 0 && activeLineIndex !== index) {
       this.saveCurrentLine();
@@ -234,32 +266,22 @@ Page({
     const currentValue = lineDraft !== undefined ? lineDraft : (item.copiedText || '');
     const wasChecked = item.isChecked;
 
-    if (wasChecked) {
-      this.lineDrafts[item.lineId] = currentValue;
-    }
-
-    const checkedMap = getCheckedMap(lineInputs);
-    if (wasChecked) {
-      checkedMap[item.lineId] = false;
-    }
-
-    const nextInputs = decorateLineInputs(
-      lineInputs.map((li, i) => ({
-        ...li,
-        isChecked: i === index ? false : li.isChecked,
-        copiedText: i === activeLineIndex && activeLineValue !== undefined ? activeLineValue : li.copiedText
-      })),
-      checkedMap,
-      index
-    );
-
-    this.syncDrafts(nextInputs);
-
-    this.setData({
-      lineInputs: nextInputs,
+    const updates = {
       activeLineIndex: index,
       activeLineValue: currentValue,
-      activeLineCursor: currentValue.length
+      activeLineCursor: currentValue.length,
+      isTextareaFocused: true
+    };
+
+    if (wasChecked) {
+      this.lineDrafts[item.lineId] = currentValue;
+      updates[`lineInputs[${index}].isChecked`] = false;
+      updates[`lineInputs[${index}].guideSegments`] = buildGuideSegments(item.sourceText, currentValue, false, true);
+    }
+
+    this.setData(updates);
+    this.positionTextarea(item.lineId, () => {
+      setTimeout(() => { this.scrollToLine(item.lineId); }, 50);
     });
   },
 
@@ -272,10 +294,6 @@ Page({
     }
 
     this.activateLine(Number(index));
-    const item = this.data.lineInputs[Number(index)];
-    if (item) {
-      setTimeout(() => { this.scrollToLine(item.lineId); }, 50);
-    }
   },
 
   saveCurrentLine() {
@@ -311,7 +329,8 @@ Page({
     this.setData({
       activeLineIndex: -1,
       activeLineValue: '',
-      activeLineCursor: 0
+      activeLineCursor: 0,
+      isTextareaFocused: false
     });
   },
 
@@ -357,52 +376,54 @@ Page({
     checkedMap[item.lineId] = true;
 
     const record = updateDailyCopyEntry(currentDate, item.lineId, value);
-    const nextInputs = decorateLineInputs(record.copyEntries || [], checkedMap);
+    const nextInputs = decorateLineInputs(record.copyEntries || [], checkedMap, -1);
+
+    this.syncDrafts(nextInputs);
 
     const nextIndex = activeLineIndex + 1;
     const nextItem = nextInputs[nextIndex];
 
-    this.syncDrafts(nextInputs);
-
+    let targetIndex = -1;
     if (nextItem && !nextItem.isChecked) {
-      const nextDraft = this.lineDrafts[nextItem.lineId];
-      const nextValue = nextDraft !== undefined ? nextDraft : (nextItem.copiedText || '');
+      targetIndex = nextIndex;
+    } else {
+      const furtherNext = nextInputs.findIndex((li, i) => i > activeLineIndex && !li.isChecked);
+      if (furtherNext >= 0) {
+        targetIndex = furtherNext;
+      }
+    }
+
+    if (targetIndex >= 0) {
+      const targetItem = nextInputs[targetIndex];
+      const targetDraft = this.lineDrafts[targetItem.lineId];
+      const targetValue = targetDraft !== undefined ? targetDraft : (targetItem.copiedText || '');
+
+      nextInputs[targetIndex].guideSegments = buildGuideSegments(targetItem.sourceText, targetValue, false, true);
 
       this.setData({
         record,
         lineInputs: nextInputs,
         savingLineId: '',
-        animatedLineId: nextItem.lineId
+        activeLineIndex: targetIndex,
+        activeLineValue: targetValue,
+        activeLineCursor: targetValue.length,
+        isTextareaFocused: true,
+        animatedLineId: targetItem.lineId
       });
 
-      this.activateLine(nextIndex, true);
-      this.animateLine(nextItem.lineId);
-      setTimeout(() => { this.scrollToLine(nextItem.lineId); }, 30);
+      this.positionTextarea(targetItem.lineId);
+      this.animateLine(targetItem.lineId);
+      setTimeout(() => { this.scrollToLine(targetItem.lineId); }, 30);
     } else {
-      const furtherNext = nextInputs.findIndex((li, i) => i > activeLineIndex && !li.isChecked);
-      if (furtherNext >= 0) {
-        const furtherItem = nextInputs[furtherNext];
-
-        this.setData({
-          record,
-          lineInputs: nextInputs,
-          savingLineId: '',
-          animatedLineId: furtherItem.lineId
-        });
-
-        this.activateLine(furtherNext, true);
-        this.animateLine(furtherItem.lineId);
-        setTimeout(() => { this.scrollToLine(furtherItem.lineId); }, 30);
-      } else {
-        this.setData({
-          record,
-          lineInputs: nextInputs,
-          savingLineId: '',
-          activeLineIndex: -1,
-          activeLineValue: '',
-          activeLineCursor: 0
-        });
-      }
+      this.setData({
+        record,
+        lineInputs: nextInputs,
+        savingLineId: '',
+        activeLineIndex: -1,
+        activeLineValue: '',
+        activeLineCursor: 0,
+        isTextareaFocused: false
+      });
     }
   },
 
@@ -428,7 +449,7 @@ Page({
     });
 
     const checkedMap = getCheckedMap(lineInputs);
-    const nextInputs = decorateLineInputs(record ? record.copyEntries || [] : lineInputs, checkedMap, activeLineIndex);
+    const nextInputs = decorateLineInputs(record ? record.copyEntries || [] : lineInputs, checkedMap, -1);
 
     this.syncDrafts(nextInputs);
 
@@ -451,6 +472,11 @@ Page({
       this.lineDrafts[lineInputs[activeLineIndex].lineId] = activeLineValue;
     }
 
+    lineInputs.forEach((item) => {
+      const value = this.lineDrafts[item.lineId] !== undefined ? this.lineDrafts[item.lineId] : item.copiedText || '';
+      updateDailyCopyEntry(currentDate, item.lineId, value);
+    });
+
     const result = completeDailyRecord(currentDate);
 
     if (!result.ok) {
@@ -461,7 +487,7 @@ Page({
       return;
     }
 
-    const nextInputs = decorateLineInputs(result.record.copyEntries || [], getCheckedMap(this.data.lineInputs));
+    const nextInputs = decorateLineInputs(result.record.copyEntries || [], getCheckedMap(this.data.lineInputs), -1);
 
     this.syncDrafts(nextInputs);
 
@@ -471,6 +497,7 @@ Page({
       activeLineIndex: -1,
       activeLineValue: '',
       activeLineCursor: 0,
+      isTextareaFocused: false,
       isCompleted: true
     });
 

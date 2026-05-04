@@ -136,7 +136,7 @@ function reconcileCopyEntries(copyEntries) {
 }
 
 function getCompletedLineCount(copyEntries) {
-  return copyEntries.filter((item) => isCopiedTextMatched(item.sourceText, item.copiedText)).length;
+  return copyEntries.filter((item) => (item.copiedText || '').trim()).length;
 }
 
 function mergeCopiedText(copyEntries) {

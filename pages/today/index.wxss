@@ -58,6 +58,7 @@
 }
 
 .copy-board {
+  position: relative;
   background: linear-gradient(180deg, #fbf7f0 0%, #f8f1e7 100%);
   border-radius: 24rpx;
   padding: 8rpx 0;
@@ -126,19 +127,6 @@
   color: transparent;
 }
 
-.board-textarea {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  background: transparent;
-  color: #2f251d;
-  border: none;
-  outline: none;
-}
-
 .board-input-mock {
   position: relative;
   z-index: 1;
@@ -158,6 +146,24 @@
 
 .board-input-checked {
   color: transparent;
+}
+
+.board-textarea {
+  position: absolute;
+  z-index: 3;
+  box-sizing: border-box;
+  background: transparent;
+  color: transparent;
+  caret-color: #2f251d;
+  border: none;
+  outline: none;
+  margin: 0;
+}
+
+.board-textarea-hidden {
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .action-row {
